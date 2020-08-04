@@ -1,3 +1,3 @@
 # PSIML6 gesture recognition 
 
--Insert description here-
+Data downloaded from smaller subset at: https://www.kaggle.com/toxicmender/20bn-jester
