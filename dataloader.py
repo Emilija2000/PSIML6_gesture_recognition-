@@ -19,27 +19,31 @@ class Video_Folder(torch.utils.data.Dataset):
         self.classes=[] 
         self.all_data=[]
         self.dict_gestures = dict()
-        with (open,csv_path) as csvfile:
-            csv_reader = csv.reader(csvfile,delimiter=';')
+        with open(csv_path) as csvfile:
+            csv_reader = csv.reader(csvfile,delimiter=',')
             for row in csv_reader:
-                all_data.append((row[0],row[2])) #0 - video id ; #3- gesture id
-                self.dict_gestures[row[0]]=row[2]
-                if (row[2] not in self.classes) self.classes.append(row[2])
+                self.all_data.append((row[0],row[3])) #0 - video id ; #3- gesture id
+                #print(self.all_data[len(self.all_data)-1])
+                self.dict_gestures[row[0]]=row[3]
+                if (row[2] not in self.classes):
+                     self.classes.append(row[3])
         self.root = root
         self.numOfFrames=numOfFrames
         self.transform=transform
 
     def __getitem__(self,index):
-        item=all_data[index]
-        folder = os.path.join(self.root,item[0])
-        images = []
-        all_paths = self.get_all_paths(self.root)
+        item=self.all_data[index]
+        item = str(item[0])
+        folder = os.path.join(self.root,item)
+        imgs = []
+        all_paths = self.get_all_paths(folder)
         for path in all_paths:
             img = import_basic_image(path)
             img=self.transform(img)
-            imgs.append(torch.unsqueeze(img,0))
-        data = torch.cat(img)
-        target_idx = dict_gestures[index]
+            imgs.append(img.unsqueeze(0))
+        data = torch.cat(imgs)
+        #print(self.dict_gestures)
+        target_idx = self.dict_gestures[item]
         data=data.permute(1,0,2,3)
         return (data,target_idx)
         #TODO
@@ -47,9 +51,16 @@ class Video_Folder(torch.utils.data.Dataset):
     def __len__(self):
         return (len(self.all_data))
 
-    def get_all_paths(root):
+    def get_all_paths(self,root):
         allpaths = []
         for i in range(self.numOfFrames):
-            allpaths.append(os.path.join(root,str(i),extension))
+            stri = str(i+1)
+            for i in range(5-len(stri)):
+                stri='0'+stri
+            allpaths.append(os.path.join(root,stri+extension))
         return allpaths
 
+if __name__=='__main__':
+    transform = Compose([CenterCrop(84),ToTensor()])
+    trainVideoFolder = Video_Folder('D:\\gestures\\Train','D:\\gestures\\Train.csv',37,transform)
+    print(trainVideoFolder.__getitem__(1))
