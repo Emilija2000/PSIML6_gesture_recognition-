@@ -1,2 +1,3 @@
-# PSIML6_gesture_recognition-
-PSIML project
+# PSIML6 gesture recognition 
+
+-Insert description here-
